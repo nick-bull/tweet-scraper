@@ -9,11 +9,6 @@ exp_backoff=1.5
 
 tweet_date="$(date +'%Y-%m-%d')"
 
-python3.7 -m venv venv-tweet-scraper
-. ./venv-tweet-scraper/bin/activate
-
-pip install --user twint
-
 get_tweets_once() {
   twint -u "${twitter_username}" --until "$1"
 }
@@ -45,5 +40,3 @@ get_tweets_since() {
 while get_tweets_since "${tweet_date}"; do
   echo "$((fetch_line_count - 2)) tweets fetched before ${tweet_date}"
 done
-
-. ./venv-tweet-scraper/bin/deactivate
