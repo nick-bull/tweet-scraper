@@ -1,5 +1,6 @@
 ## Usage
 
 ```
-./run-many.sh "shell" "musclegeeks" "other-usernames"
+./run-users.sh "shell" "musclegeeks" "other-usernames"
+./run-terms.sh "puppies" "kittens"
 ```
