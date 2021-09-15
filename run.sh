@@ -34,15 +34,26 @@ done
 
 if test -n "${twitter_username}"; then
   twitter_command="get_user_tweets_once"
+  output_fname="${twitter_username}"
 elif test -n "${twitter_term}"; then
   twitter_command="get_term_tweets_once"
+  output_fname="${twitter_term}"
 else
   echo "tweet-scraper: No username or search term provided"
   exit 1
 fi
 
 test -z "$colorize" && colorize=false
-test -z "$output_file" && output_file="./$twitter_username.txt"
+test -z "$output_file" && output_file="./${output_fname}.txt"
+
+case "$(uname -s)" in
+    Linux*) alias date_cmd=date ;;
+    Darwin*) alias date_cmd=gdate ;;
+    *)
+      echo "Machine not recognised:"
+      exit 1
+      ;;
+esac
 
 retries=10
 retry_delay=1
@@ -77,7 +88,7 @@ get_term_tweets_once() {
   twint -s "${twitter_term}" --since "$1" --until "$2"
 }
 
-last_tweet_date="$(date +'%Y-%m-%d')"
+last_tweet_date="$(date_cmd +'%Y-%m-%d')"
 get_tweets() {
   tweet_command="$1"
   from_date="$2"
@@ -90,13 +101,16 @@ get_tweets() {
       sleep 15
       x="$((x + 1))"
       
-      echo "Still fetching [$((x * 15))s]..."
+      while_last_tweet_date="$(
+        tail -n3 "${output_file}.raw" | awk 'NR == 1 {print $2 " " $3}'
+      )"
+      echo "Still fetching [$((x * 15))s at ${while_last_tweet_date}]..."
     done) &
 
     fetch_pid="$!"
 
-    fetch_data="$("${tweet_command}" "${from_date}" "${until_date}")"
-    fetch_line_count="$(echo "${fetch_data}" | wc -l)"
+    "${tweet_command}" "${from_date}" "${until_date}" > "${output_file}.raw"
+    fetch_line_count="$(wc -l "${output_file}.raw")"
 
     kill "$fetch_pid"
 
@@ -117,12 +131,12 @@ get_tweets() {
   done
 }
 
-until_epoch="$(date --date="${until_input}" +%s)"
+until_epoch="$(date_cmd --date="${until_input}" +%s)"
 
 while get_tweets "${twitter_command}" "$from_input" "$last_tweet_date"; do
   print "  $((fetch_line_count - 2)) tweets fetched before ${last_tweet_date}"
 
-  last_tweet_epoch="$(date --date="${last_tweet_date}" +%s)"
+  last_tweet_epoch="$(date_cmd --date="${last_tweet_date}" +%s)"
   if test -n "${until_input}" && test "${last_tweet_epoch}" -lt "${until_epoch}"; then
     return 0
   fi
