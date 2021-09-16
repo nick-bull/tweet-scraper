@@ -43,12 +43,8 @@ else
   exit 1
 fi
 
-echo "output_fname: '${output_fname}'"
-
 test -z "$colorize" && colorize=false
 test -z "$output_file" && output_file="./${output_fname}.txt"
-
-echo "output_file: '${output_file}'"
 
 case "$(uname -s)" in
     Linux*) alias date_cmd=date ;;
