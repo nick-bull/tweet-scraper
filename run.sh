@@ -130,7 +130,7 @@ get_tweets() {
 
     if test "${fetch_line_count}" -gt 2; then
       head -n2 "${output_file}.raw" >> "${output_file}"
-      last_tweet_date="$(tail -n3 "${output_file}.raw" | awk 'NR == 1 {print $2 " " $3}')"
+      last_tweet_date="$(tail -n -3 "${output_file}.raw" | awk 'NR == 1 {print $2 " " $3}')"
 
       return 0
     fi
