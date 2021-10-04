@@ -33,5 +33,5 @@ while test -n "${twitter_terms}"; do
   echo "### Beginning to scrape mentions from '$twitter_term' to '${output_file}'"
 
   ./run.sh $term_args --search-term "$twitter_term" --colorize
-  grep -i "@${twitter_term}" output_file > mentions-${twitter_term}.txt"
+  grep -i "@${twitter_term}" "${output_file}" > "mentions-${twitter_term}.txt"
 done

@@ -114,7 +114,7 @@ get_tweets() {
       x="$((x + 1))"
       
       while_last_tweet_date="$(
-        tail -n3 "${output_file}.raw" | awk 'NR == 1 {print $2 " " $3}'
+        tail -n-3 "${output_file}.raw" | awk 'NR == 1 {print $2 " " $3}'
       )"
       echo "Still fetching [$((x * 15))s at ${while_last_tweet_date}]..."
     done) &
@@ -129,8 +129,8 @@ get_tweets() {
     kill "$fetch_pid"
 
     if test "${fetch_line_count}" -gt 2; then
-      head -n2 "${output_file}.raw" >> "${output_file}"
-      last_tweet_date="$(tail -n -3 "${output_file}.raw" | awk 'NR == 1 {print $2 " " $3}')"
+      head -n-2 "${output_file}.raw" >> "${output_file}"
+      last_tweet_date="$(tail -n3 "${output_file}.raw" | awk 'NR == 1 {print $2 " " $3}')"
 
       return 0
     fi
